@@ -7,7 +7,7 @@ This repository contains the supplementary code and datasets for the manuscript:
 * **`Simulation.R`**: The primary R script used to execute the Monte Carlo simulations, calculate the $k_1$ and $k_2$ shrinkage parameters, and formulate the SKLE matrix.
 * **`Body fat new.R`, `CI hald data.R` **: The real-world dataset utilized in Section 5 of the manuscript.
   
-* ## Reproducing Other Dimensions (p = 4, 12, 16)
+ ## Reproducing Other Dimensions (p = 4, 12, 16)
 
 `Simulation.R` is parameterized, not hardcoded — the number of explanatory 
 variables is set by the `P_VAL` variable at the top of the script (line 8). 

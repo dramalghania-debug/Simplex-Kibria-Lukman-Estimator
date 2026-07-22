@@ -5,7 +5,7 @@ library(parallel)
 # ==========================================
 # 1. CONFIGURATION
 # ==========================================
-P_VAL <- 8 # Updated for the p=8 scenario
+P_VAL <- 8 # Set to 4, 8, 12, or 16 to reproduce the corresponding scenario
 N_VALUES <- c(25, 50, 100, 200)
 RHO_VALUES <- c(0.80, 0.90, 0.95, 0.99)  
 SIGMA_VALUES <- c(0.5, 1.0, 1.5, 2.0)

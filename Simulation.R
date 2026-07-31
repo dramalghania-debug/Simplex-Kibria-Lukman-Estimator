@@ -133,7 +133,10 @@ run_simulation_rep <- function(dummy_idx, n, rho, sigma, link_name, p_val) {
   vals <- eig$values
   vecs <- eig$vectors
   alpha_sq <- as.vector(crossprod(vecs, b_mle))^2
-  
+  # Truncate k to the admissible region of Theorem 2 (k < 2*lambda_min),
+# which guarantees the variance difference DVar in Eq. (33) is positive
+# definite. The 1e-5 offset enforces strict inequality; the 1e-10 floor
+# below keeps k > 0 so that the estimator remains well defined.
   # Theorem 2 Hard Ceiling (k < 2 * lambda_min)
   upper_limit <- (2 * min(vals)) - 1e-5
   

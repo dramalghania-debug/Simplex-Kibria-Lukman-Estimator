@@ -1,50 +1,111 @@
 # Simplex Kibria-Lukman Estimator (SKLE)
 
-Supplementary code for the manuscript "Kibria-Lukman Estimator for Simplex
-Regression Model under Multicollinearity: Theory, Simulation and Applications".
+Code and results accompanying the manuscript
+*Kibria-Lukman estimator for the simplex regression model under
+multicollinearity: Theory, simulation and applications*.
 
-## Files
+## Contents
 
-- `Simulation.R` — Monte Carlo simulation study (Section 4). Computes the SMLE,
-  SRRE, and SKLE at both shrinkage parameters k1 and k2.
-- `Body fat new.R` — analysis of the Body Fat data (Section 5.1); data from
-  Johnson (1996).
-- `CI hald data.R` — analysis of the Hald Cement data (Section 5.2); data from
-  Montgomery, Peck & Vining (2021).
+| File | Purpose |
+|---|---|
+| `simulation.R` | Monte Carlo study. One dimension per run; four runs give 1,024 scenarios. |
+| `figures.R` | Produces the figures from the simulation output. |
+| `body_fat.R` | Body Fat application. |
+| `hald_cement.R` | Hald Cement application. |
+| `hald_gof.R` | Goodness-of-fit tests for the transformed Hald response. |
+| `verify_table18.R` | Recomputes every number in Table 18 from the CSV files, printing the column arithmetic used for each. |
+| `Simulation_Results_p4.csv` | Simulation output, p = 4. |
+| `Simulation_Results_p8.csv` | Simulation output, p = 8. |
+| `Simulation_Results_p12.csv` | Simulation output, p = 12. |
+| `Simulation_Results_p16.csv` | Simulation output, p = 16. |
 
-## Software requirements
+All four scripts read and write in the working directory, so they run from a
+clone without editing.
 
-- R 4.5.1 (2025-06-13) or later
-- VGAM (1.1-12), MASS, parallel
+## Reproducing the simulation
 
-`parallel` is part of base R; VGAM and MASS install from CRAN:
+The dimension and the number of replications are read from the command line,
+one dimension per run:
 
-    install.packages(c("VGAM", "MASS"))
+```
+Rscript simulation.R 4  1000
+Rscript simulation.R 8  1000
+Rscript simulation.R 12 1000
+Rscript simulation.R 16 1000
+```
 
-**Operating system.** `Simulation.R` uses a FORK cluster, which is available on
-macOS and Linux only. The simulations reported in the manuscript were run on
-macOS. Windows users will need to substitute a PSOCK cluster in Section 5 of
-the script (`type = "PSOCK"`); the script exports all required objects to the
-workers, but this configuration was not used for the published results.
+Each run crosses four sample sizes, four correlation levels, four dispersion
+levels and four link functions at the given dimension, giving 256 scenarios
+per run and 1,024 in total. Each scenario is replicated 1,000 times.
 
-## Reproducing other dimensions (p = 4, 12, 16)
+Each run writes one `Simulation_Results_p*.csv` to the working directory, and
+resumes from the last completed scenario if the file already exists. Set
+`SKLE_OUT` to write elsewhere.
 
-The number of explanatory variables is set by `P_VAL` at the top of the script
-(line 8). To reproduce the other dimensionalities, change this value and rerun:
+The study is seeded, so a rerun reproduces the deposited files. Replications
+run in parallel on `detectCores() - 1` cores; the full study takes some hours.
 
-    P_VAL <- 8   # Set to 4, 8, 12, or 16
+The four CSV files in this repository are the output used in the manuscript,
+so the figures and tables can be reproduced without rerunning the simulation.
 
-All other factors (sample size, multicollinearity level, dispersion, and link
-function) are controlled by the same configuration block and need no
-modification.
+## Reproducing the figures
 
-## Output
+```
+Rscript figures.R
+```
 
-Results are written to a folder named `New_SKLE_Simulation_p<P_VAL>` on the
-Desktop, as `Simulation_Results_p<P_VAL>.csv`, one row per scenario. The script
-appends after each scenario and resumes from the existing file if interrupted —
-delete the CSV to start a scenario grid from scratch.
+Reads the four CSV files from the working directory and writes 13 figures to
+`./figures`. Seven of them appear in the manuscript; the rest cover
+combinations of the design factors that the manuscript reports in tables.
+Set `SKLE_DATA` to read the CSV files from elsewhere and `SKLE_FIGS` to write
+the figures elsewhere:
 
-The seed is fixed at `set.seed(2025)`. Each of the 256 scenarios runs 1000
-replications; non-converging replications are discarded and counted in the
-`Successful_Reps` column.
+```
+SKLE_DATA=/path/to/csvs SKLE_FIGS=/path/to/figures Rscript figures.R
+```
+
+## Reproducing the applications
+
+```
+Rscript body_fat.R
+Rscript hald_cement.R
+```
+
+Both print their results, including the estimated coefficients, the estimated
+MSE and the shrinkage parameters. `hald_cement.R` also refits each model by
+direct numerical maximum likelihood and reports the agreement with the IRLS
+fit. The goodness-of-fit tests for the Hald response are in `hald_gof.R`,
+below.
+
+## Goodness of fit
+
+```
+Rscript hald_gof.R
+```
+
+Tests the simplex distribution against the transformed Hald response, with the
+mean and dispersion estimated from that response. Reports the
+Kolmogorov-Smirnov, Cramer-von Mises and Anderson-Darling statistics with
+asymptotic p-values, chi-square statistics on equiprobable bins, and
+Kolmogorov-Smirnov and Cramer-von Mises p-values from a parametric bootstrap
+that re-estimates the parameters on each of 4,000 samples.
+
+## Verifying Table 18
+
+```
+Rscript verify_table18.R
+```
+
+Recomputes every number in Table 18 from the four CSV files and prints the
+column arithmetic behind each one. Base R only.
+
+## Data
+
+Neither application needs a data file. The Body Fat data are loaded from the
+`mfp` package; the Hald Cement data are given in the script.
+
+## Requirements
+
+R, with `MASS` and `parallel` for the simulation, `ggplot2`, `dplyr`, `tidyr`
+and `patchwork` for the figures, `mfp` for the Body Fat application and
+`goftest` for the goodness-of-fit tests.

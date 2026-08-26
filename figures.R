@@ -50,7 +50,8 @@ for (p in p_vals) {
     # figures 24 and 25.
     required_cols <- c("Link", "Sigma", "Rho", "n", "SMLE",
                        "SRRE_k1", "SKLE_k1", "SRRE_k2", "SKLE_k2",
-                       "SKLE_k3", "SKLE_k4", "Prov_Hold_k2", "K4_Binds")
+                       "SRRE_k3", "SKLE_k3", "SRRE_k4", "SKLE_k4",
+                       "Prov_Hold_k2", "K4_Binds")
     
     if (all(required_cols %in% colnames(df))) {
       df <- df[, required_cols]
@@ -86,12 +87,14 @@ if(nrow(all_data) == 0) stop("CRITICAL ERROR: No valid data was loaded.")
 # 2. Prepare Data
 # ==============================================================================
 long_data <- all_data %>%
-  pivot_longer(cols = c("SMLE", "SRRE_k1", "SKLE_k1", "SRRE_k2", "SKLE_k2"),
+  pivot_longer(cols = c("SMLE", "SRRE_k1", "SKLE_k1", "SRRE_k2", "SKLE_k2",
+                                "SRRE_k3", "SKLE_k3", "SRRE_k4", "SKLE_k4"),
                names_to = "Estimator",
                values_to = "MSE")
 
 long_data$Estimator <- factor(long_data$Estimator,
-                              levels = c("SMLE", "SRRE_k1", "SKLE_k1", "SRRE_k2", "SKLE_k2"))
+                              levels = c("SMLE", "SRRE_k1", "SKLE_k1", "SRRE_k2", "SKLE_k2",
+                                         "SRRE_k3", "SKLE_k3", "SRRE_k4", "SKLE_k4"))
 
 # Figures are written to ./figures beside the script.  Set SKLE_FIGS to
 # write them elsewhere.
@@ -110,7 +113,11 @@ create_plot <- function(data_subset, x_var, x_lab_expr, caption_expr) {
     expression(SRRE(k[1])),
     expression(SKLE(k[1])),
     expression(SRRE(k[2])),
-    expression(SKLE(k[2]))
+    expression(SKLE(k[2])),
+    expression(SRRE(k[3])),
+    expression(SKLE(k[3])),
+    expression(SRRE(k[4])),
+    expression(SKLE(k[4]))
   )
   
   if(x_var == "Link") {
@@ -126,9 +133,18 @@ create_plot <- function(data_subset, x_var, x_lab_expr, caption_expr) {
   
   p <- p + geom_point(size = 3) + 
     # Applying the mathematical labels to color, shape, and linetype so they perfectly merge into one legend
-    scale_color_discrete(labels = est_labels) +
-    scale_shape_manual(values = c(16, 17, 15, 3, 4), labels = est_labels) + 
-    scale_linetype_manual(values = c("solid", "dotted", "dashed", "dotdash", "twodash"), labels = est_labels) +
+    scale_color_manual(values = c(
+      "SMLE"    = "#000000",
+      "SRRE_k1" = "#9ECAE1", "SRRE_k2" = "#4292C6",
+      "SRRE_k3" = "#2171B5", "SRRE_k4" = "#08306B",
+      "SKLE_k1" = "#FCAE91", "SKLE_k2" = "#FB6A4A",
+      "SKLE_k3" = "#CB181D", "SKLE_k4" = "#67000D"),
+      labels = est_labels) +
+    scale_shape_manual(values = c(16, 17, 15, 3, 4, 17, 15, 3, 4), labels = est_labels) + 
+    scale_linetype_manual(values = c("solid",
+                                     "dashed", "dotted", "dotdash", "longdash",
+                                     "dashed", "dotted", "dotdash", "longdash"),
+                          labels = est_labels) +
     xlab(x_lab_expr) + ylab("MSE") +
     # Captions are supplied by the manuscript, not baked into the image.
     theme_bw() +

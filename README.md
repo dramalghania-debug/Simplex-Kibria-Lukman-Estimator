@@ -106,6 +106,5 @@ Neither application needs a data file. The Body Fat data are loaded from the
 
 ## Requirements
 
-R, with `MASS` and `parallel` for the simulation, `ggplot2`, `dplyr`, `tidyr`
-and `patchwork` for the figures, `mfp` for the Body Fat application and
-`goftest` for the goodness-of-fit tests.
+R, and the packages named in the `library()` calls at the head of each script.
+Run under R 4.5.1.

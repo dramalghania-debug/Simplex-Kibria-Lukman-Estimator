@@ -13,13 +13,14 @@ multicollinearity: Theory, simulation and applications*.
 | `body_fat.R` | Body Fat application. |
 | `hald_cement.R` | Hald Cement application. |
 | `hald_gof.R` | Goodness-of-fit tests for the transformed Hald response. |
-| `verify_table18.R` | Recomputes every number in Table 18 from the CSV files, printing the column arithmetic used for each. |
 | `Simulation_Results_p4.csv` | Simulation output, p = 4. |
 | `Simulation_Results_p8.csv` | Simulation output, p = 8. |
 | `Simulation_Results_p12.csv` | Simulation output, p = 12. |
 | `Simulation_Results_p16.csv` | Simulation output, p = 16. |
+| `mse_tables.R` | Writes the MSE tables for p = 8 at the dispersion levels the manuscript does not print. |
+| `tables/` | Those twelve tables, one CSV per link function and dispersion level. |
 
-All four scripts read and write in the working directory, so they run from a
+All scripts read and write in the working directory, so they run from a
 clone without editing.
 
 ## Reproducing the simulation
@@ -56,13 +57,37 @@ Rscript figures.R
 
 Reads the four CSV files from the working directory and writes 13 figures to
 `./figures`. Seven of them appear in the manuscript; the rest cover
-combinations of the design factors that the manuscript reports in tables.
+combinations of the design factors reported in the manuscript tables and in
+`tables/`.
 Set `SKLE_DATA` to read the CSV files from elsewhere and `SKLE_FIGS` to write
 the figures elsewhere:
 
 ```
 SKLE_DATA=/path/to/csvs SKLE_FIGS=/path/to/figures Rscript figures.R
 ```
+
+## MSE tables
+
+```
+Rscript mse_tables.R
+```
+
+Writes twelve CSV files to `./tables`, one for each link function at
+sigma^2 = 0.5, 1 and 1.5, with p = 8. These are the dispersion levels the
+manuscript does not print; its Tables 1 to 4 give the same quantities at
+sigma^2 = 2, and the files follow that layout. Columns are the sample size, the
+correlation, the SMLE, and the SRRE and SKLE at each of the four shrinkage
+parameters, to four decimal places.
+
+Reads `Simulation_Results_p8.csv` from the working directory. Set `SKLE_DATA`
+to read it from elsewhere and `SKLE_TABLES` to write the tables elsewhere:
+
+```
+SKLE_DATA=/path/to/csvs SKLE_TABLES=/path/to/tables Rscript mse_tables.R
+```
+
+The twelve CSV files in `tables/` are the output of this script, so they can be
+read directly without running it.
 
 ## Reproducing the applications
 
@@ -90,15 +115,6 @@ asymptotic p-values, chi-square statistics on equiprobable bins, and
 Kolmogorov-Smirnov and Cramer-von Mises p-values from a parametric bootstrap
 that re-estimates the parameters on each of 4,000 samples.
 
-## Verifying Table 18
-
-```
-Rscript verify_table18.R
-```
-
-Recomputes every number in Table 18 from the four CSV files and prints the
-column arithmetic behind each one. Base R only.
-
 ## Data
 
 Neither application needs a data file. The Body Fat data are loaded from the
@@ -106,5 +122,6 @@ Neither application needs a data file. The Body Fat data are loaded from the
 
 ## Requirements
 
-R, and the packages named in the `library()` calls at the head of each script.
-Run under R 4.5.1.
+R, with `MASS` and `parallel` for the simulation, `ggplot2`, `dplyr`, `tidyr`
+and `patchwork` for the figures, `mfp` for the Body Fat application and
+`goftest` for the goodness-of-fit tests. `mse_tables.R` uses base R only.
